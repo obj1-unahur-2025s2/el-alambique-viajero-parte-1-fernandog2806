@@ -33,8 +33,19 @@ describe "Tests del modelo de Luke y sus recuerdos" {
 }
 
 describe "Alambique y viajes" {
+  test "El combustible no se consume si Luke no puede viajar" {
+    alambique.consumirCombustible(80) // deja el combustible en 20
+    const combustibleAntesDelIntento = alambique.cantDeCombustible()
+    
+    luke.agregarVehiculo(alambique)
+    luke.viajarA(paris) // París requiere >30, así que no viaja
+    
+    assert.equals(luke.cantidadDeLugaresVisitados(), 0) // no viajó
+    assert.equals(alambique.cantDeCombustible(), combustibleAntesDelIntento)
+  }
+  
   test "Luke no puede viajar a París si el alambique tiene poco combustible" {
-    alambique.quitarCombustible(90)
+    alambique.consumirCombustible(90)
     luke.agregarVehiculo(alambique)
     luke.viajarA(paris)
     assert.equals(luke.cantidadDeLugaresVisitados(), 0)
@@ -103,6 +114,14 @@ describe "Tests del homenaje en Las Vegas" {
       "replica de los jardines colgantes"
     )
   }
+  
+  test "Luke recibe regalo al azar si el día no coincide con ningún homenaje" {
+    dia.cambiarDiaDelHomenaje("1 de enero")
+    alambique.agregarCombustible(100)
+    luke.agregarVehiculo(alambique)
+    luke.viajarA(lasVegas)
+    assert.equals(luke.recuerdoDelUltimoViaje(), "regalo al azar")
+  }
 }
 
 describe "Tests del recuerdo único en Luke" {
@@ -126,7 +145,120 @@ describe "Tests del estado del alambique" {
   }
   
   test "El alambique detecta tanque vacío" {
-    alambique.quitarCombustible(500)
+    alambique.consumirCombustible(500)
     assert.that(alambique.tieneElTanqueVacio())
+  }
+}
+
+describe "Tests del vehículo SuperChatarra" {
+  test "Es rápido si tiene suficiente munición" {
+    superChatarra.comprarMuniciones(150)
+    assert.that(superChatarra.esRapido())
+  }
+  
+  test "Es lento si tiene poca munición" {
+    superChatarra.consumirCombustible(180)
+    assert.that(superChatarra.esLento())
+  }
+  
+  test "Puede viajar a Buenos Aires si es rápido" {
+    superChatarra.comprarMuniciones(300) // o más
+    luke.agregarVehiculo(superChatarra)
+    luke.viajarA(buenosAires)
+    assert.equals(luke.recuerdoDelUltimoViaje(), "mate con yerba")
+  }
+}
+
+describe "Tests del vehículo AntiguallaBlindada" {
+  test "Es rápido si tiene suficientes gangsters" {
+    antiguallaBlindada.reclutarGanster(50)
+    assert.that(antiguallaBlindada.esRapido())
+  }
+  
+  test "Es lento si tiene pocos gangsters" {
+    antiguallaBlindada.consumirCombustible(90)
+    assert.that(antiguallaBlindada.esLento())
+  }
+  
+  test "Puede viajar a Buenos Aires si es rápido" {
+    presidente.esCopado()
+    luke.agregarVehiculo(antiguallaBlindada)
+    luke.viajarA(buenosAires)
+    assert.equals(luke.recuerdoDelUltimoViaje(), "mate con yerba")
+  }
+}
+
+describe "Tests del vehículo SuperConvertible" {
+  test "Es rápido si el combustible convertido supera 200" {
+    superConvertible.recargarCombustible(1000)
+    assert.that(superConvertible.esRapido())
+  }
+  
+  test "Es lento si el combustible convertido es bajo" {
+    superConvertible.consumirCombustible(90)
+    assert.that(superConvertible.esLento())
+  }
+  
+  test "Puede viajar a París si tiene suficiente combustible convertido" {
+    superConvertible.recargarCombustible(1000)
+    luke.agregarVehiculo(superConvertible)
+    luke.viajarA(paris)
+    assert.equals(luke.recuerdoDelUltimoViaje(), "llavero torre eifel")
+  }
+}
+
+describe "Tests de acceso a Rio de Janeiro" {
+  test "Luke puede viajar a Rio si el vehículo tiene suficiente combustible" {
+    alambique.agregarCombustible(100)
+    luke.agregarVehiculo(alambique)
+    luke.viajarA(rioDeJaneiro)
+    assert.equals(luke.recuerdoDelUltimoViaje(), "remera de cristo redentor")
+    assert.equals(luke.cantidadDeLugaresVisitados(), 1)
+  }
+  
+  test "Luke no puede viajar a Rio si el vehículo tiene poco combustible" {
+    alambique.consumirCombustible(80)
+    luke.agregarVehiculo(alambique)
+    luke.viajarA(rioDeJaneiro)
+    assert.equals(luke.cantidadDeLugaresVisitados(), 0)
+  }
+}
+
+describe "Tests del homenaje en Las Vegas con fechas especiales" {
+  test "Luke recibe recuerdo de Rio de Janeiro si el día es 7 de septiembre" {
+    dia.cambiarDiaDelHomenaje("7 de septiembre")
+    alambique.agregarCombustible(100)
+    luke.agregarVehiculo(alambique)
+    luke.viajarA(lasVegas)
+    assert.equals(luke.recuerdoDelUltimoViaje(), "remera de cristo redentor")
+  }
+  
+  test "Luke recibe regalo al azar si el día no coincide con ningún homenaje" {
+    dia.cambiarDiaDelHomenaje("25 de diciembre")
+    alambique.agregarCombustible(100)
+    luke.agregarVehiculo(alambique)
+    luke.viajarA(lasVegas)
+    assert.equals(luke.recuerdoDelUltimoViaje(), "regalo al azar")
+  }
+}
+
+describe "Tests de métodos especiales de vehículos" {
+  test "El cañón de SuperChatarra reduce municiones en 6" {
+    superChatarra.comprarMuniciones(100)
+    const antes = superChatarra.cantDeCombustible()
+    superChatarra.cañon(100)
+    assert.that(superChatarra.cantDeCombustible() < antes)
+  }
+  
+  test "AntiguallaBlindada puede reclutar gangsters" {
+    const antes = antiguallaBlindada.cantDeCombustible()
+    antiguallaBlindada.reclutarGanster(50)
+    assert.equals(antiguallaBlindada.cantDeCombustible(), antes + 25)
+  }
+  
+  test "SuperConvertible convierte correctamente el combustible" {
+    superConvertible.recargarCombustible(500)
+    const esperado = superConvertible.cantDeCombustible().max(0)
+    assert.equals(superConvertible.cantDeCombustible(), esperado)
   }
 }

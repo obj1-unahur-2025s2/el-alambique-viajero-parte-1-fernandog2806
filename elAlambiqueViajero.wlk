@@ -1,17 +1,4 @@
-// elAlambiqueViajero.wlk
-// elAlambiqueViajero.wlk
-// elAlambiqueViajero.wlk
-// elAlambiqueViajero.wlk
-// elAlambiqueViajero.wlk
-// elAlambiqueViajero.wlk
-// elAlambiqueViajero.wlk
-// elAlambiqueViajero.wlk
-// elAlambiqueViajero.wlk
-// elAlambiqueViajero.wlk
-// elAlambiqueViajero.wlk
-// elAlambiqueViajero.wlk
 object luke {
-  const ciudades = [paris, buenosAires, bagdad, lasVegas]
   const ciudadesVisitadas = []
   const ultimoRecuerdo = []
   const vehiculos = []
@@ -38,7 +25,7 @@ object luke {
     if (ciudad.puedeSerVisitadaPor(vehiculo)) {
       self.nuevoRecuerdo(ciudad, ciudad.recuerdo())
       self.ciudadesQueSeVisitaron(ciudad)
-      vehiculo.quitarCombustible(30)
+      vehiculo.consumirCombustible(30)
     }
   }
 }
@@ -47,6 +34,12 @@ object paris {
   method recuerdo() = "llavero torre eifel"
   
   method puedeSerVisitadaPor(unVehiculo) = unVehiculo.cantDeCombustible() > 30
+}
+
+object rioDeJaneiro {
+  method recuerdo() = "remera de cristo redentor"
+  
+  method puedeSerVisitadaPor(unVehiculo) = unVehiculo.cantDeCombustible() > 90
 }
 
 object buenosAires {
@@ -109,7 +102,15 @@ object lasVegas {
       if (dia.delHomenaje() == "14 de julio") {
         return paris
       } else {
-        return bagdad
+        if (dia.delHomenaje() == "30 de julio") {
+          return bagdad
+        } else {
+          if (dia.delHomenaje() == "7 de septiembre") {
+            return rioDeJaneiro
+          } else {
+            return cualquierRegaloDeCualquierCiudad
+          }
+        }
       }
     }
   }
@@ -119,6 +120,12 @@ object lasVegas {
   method puedeSerVisitadaPor(
     unVehiculo
   ) = self.ciudadHomenajeada().puedeSerVisitadaPor(unVehiculo)
+}
+
+object cualquierRegaloDeCualquierCiudad {
+  method recuerdo() = "regalo al azar"
+  
+  method puedeSerVisitadaPor(unVehiculo) = true
 }
 
 object dia {
@@ -144,7 +151,7 @@ object alambique {
     combustible = (combustible + cantCombustible).min(500)
   }
   
-  method quitarCombustible(cantCombustible) {
+  method consumirCombustible(cantCombustible) {
     combustible = (combustible - cantCombustible).max(0)
   }
   
@@ -153,3 +160,72 @@ object alambique {
   method tieneTanqueLleno() = self.cantDeCombustible() == 500
 }
 
+object superChatarra {
+  var municiones = 200
+  
+  method cantDeCombustible() = municiones / 3
+  
+  method consumirDeCombustible(municion) {
+    municiones = (municiones - self.cantDeCombustible()).max(0)
+  }
+  
+  method cañon(municion) {
+    municiones = (municion - 6).max(0)
+  }
+  
+  method comprarMuniciones(municion) {
+    municiones += municion
+  }
+  
+  method recargarCombustible(municion) {
+    municiones = (municiones + municion).min(450)
+  }
+  
+  method esRapido() = self.cantDeCombustible() > 90
+  
+  method esLento() = not self.esRapido()
+  
+  method consumirCombustible(municion) {
+    municiones = (municiones - municion).max(0)
+  }
+}
+
+object antiguallaBlindada {
+  var cantDeGangster = 100
+  
+  method cantDeCombustible() = cantDeGangster / 2
+  
+  method reclutarGanster(gangster) {
+    cantDeGangster += gangster
+  }
+  
+  method recargarCombustible(gangster) {
+    cantDeGangster = (cantDeGangster + gangster).min(450)
+  }
+  
+  method esRapido() = self.cantDeCombustible() > 40
+  
+  method esLento() = not self.esRapido()
+  
+  method consumirCombustible(gangster) {
+    cantDeGangster = (cantDeGangster - gangster).max(0)
+  }
+}
+
+object superConvertible {
+  var combustible = 100
+  
+  method cantDeCombustible() = ((combustible * 20) / 100).max(0)
+  
+  method recargarCombustible(cantCombustible) {
+    combustible = (combustible + cantCombustible).max(950)
+  }
+  
+  method consumirCombustible(cantCombustible) {
+    combustible = (combustible - cantCombustible).max(0)
+  }
+  
+  method esRapido() = self.cantDeCombustible() > 200
+  
+  method esLento() = not self.esRapido()
+}
