@@ -1,0 +1,132 @@
+import elAlambiqueViajero.*
+
+describe "Tests del modelo de Luke y sus recuerdos" {
+  test "Luke arranca sin ciudades visitadas" {
+    assert.equals(luke.cantidadDeLugaresVisitados(), 0)
+  }
+  
+  test "Luke visita París y se registra correctamente" {
+    luke.ciudadesQueSeVisitaron(paris)
+    assert.equals(luke.cantidadDeLugaresVisitados(), 1)
+    assert.equals(luke.recuerdoDelUltimoViaje(), "llavero torre eifel")
+  }
+  
+  test "Luke visita Buenos Aires con presidente copado" {
+    presidente.esCopado()
+    luke.ciudadesQueSeVisitaron(buenosAires)
+    assert.equals("mate con yerba", luke.recuerdoDelUltimoViaje())
+  }
+  
+  test "Luke visita Buenos Aires con presidente no copado" {
+    presidente.cambiarEstado()
+    luke.ciudadesQueSeVisitaron(buenosAires)
+    assert.equals(luke.recuerdoDelUltimoViaje(), "mate sin yerba")
+  }
+  
+  test "El método cambiarEstado invierte el estado del presidente" {
+    presidente.esCopado()
+    presidente.cambiarEstado()
+    assert.notThat(presidente.esCopado())
+    presidente.cambiarEstado()
+    assert.that(presidente.esCopado())
+  }
+}
+
+describe "Alambique y viajes" {
+  test "Luke no puede viajar a París si el alambique tiene poco combustible" {
+    alambique.quitarCombustible(90)
+    luke.agregarVehiculo(alambique)
+    luke.viajarA(paris)
+    assert.equals(luke.cantidadDeLugaresVisitados(), 0)
+  }
+  
+  test "Luke puede viajar a París si tiene suficiente combustible" {
+    alambique.agregarCombustible(100)
+    luke.agregarVehiculo(alambique)
+    luke.viajarA(paris)
+    assert.equals(luke.cantidadDeLugaresVisitados(), 1)
+    assert.equals(luke.recuerdoDelUltimoViaje(), "llavero torre eifel")
+  }
+  
+  test "Viajar a París reduce el combustible del alambique" {
+    alambique.agregarCombustible(100)
+    const inicial = alambique.cantDeCombustible()
+    luke.agregarVehiculo(alambique)
+    luke.viajarA(paris)
+    assert.that(alambique.cantDeCombustible() < inicial)
+  }
+  
+  test "Luke recibe bidón de petróleo si viaja a Bagdad en 1700" {
+    historia.cambiarAño(1700)
+    luke.agregarVehiculo(alambique)
+    luke.viajarA(bagdad)
+    assert.equals(luke.recuerdoDelUltimoViaje(), "bidon de petroleo")
+  }
+  
+  test "Luke recibe réplica de arma si viaja a Bagdad en 1850" {
+    historia.cambiarAño(1850)
+    luke.agregarVehiculo(alambique)
+    luke.viajarA(bagdad)
+    assert.equals(
+      luke.recuerdoDelUltimoViaje(),
+      "replica de arma de destruccion masiva"
+    )
+  }
+}
+
+describe "Tests del homenaje en Las Vegas" {
+  test "Luke recibe recuerdo de Buenos Aires si el día es 9 de julio" {
+    dia.cambiarDiaDelHomenaje("9 de julio")
+    presidente.esCopado()
+    alambique.agregarCombustible(100)
+    luke.agregarVehiculo(alambique)
+    luke.viajarA(lasVegas)
+    assert.equals(luke.recuerdoDelUltimoViaje(), "mate con yerba")
+  }
+  
+  test "Luke recibe recuerdo de París si el día es 14 de julio" {
+    dia.cambiarDiaDelHomenaje("14 de julio")
+    alambique.agregarCombustible(100)
+    luke.agregarVehiculo(alambique)
+    luke.viajarA(lasVegas)
+    assert.equals(luke.recuerdoDelUltimoViaje(), "llavero torre eifel")
+  }
+  
+  test "Luke recibe recuerdo de Bagdad si el día es 30 de julio" {
+    dia.cambiarDiaDelHomenaje("30 de julio")
+    historia.cambiarAño(2000)
+    alambique.agregarCombustible(100)
+    luke.agregarVehiculo(alambique)
+    luke.viajarA(lasVegas)
+    assert.equals(
+      luke.recuerdoDelUltimoViaje(),
+      "replica de los jardines colgantes"
+    )
+  }
+}
+
+describe "Tests del recuerdo único en Luke" {
+  test "Luke reemplaza el recuerdo anterior al viajar" {
+    alambique.agregarCombustible(100)
+    luke.agregarVehiculo(alambique)
+    luke.viajarA(paris)
+    luke.viajarA(bagdad)
+    assert.equals(
+      luke.recuerdoDelUltimoViaje(),
+      "replica de los jardines colgantes"
+    )
+    assert.equals(luke.cantidadDeLugaresVisitados(), 2)
+  }
+}
+
+describe "Tests del estado del alambique" {
+  test "El alambique detecta tanque lleno" {
+    alambique.agregarCombustible(500)
+    assert.that(alambique.tieneTanqueLleno())
+  }
+  
+  test "El alambique detecta tanque vacío" {
+    alambique.quitarCombustible(500)
+    assert.that(alambique.tieneElTanqueVacio())
+  }
+}
